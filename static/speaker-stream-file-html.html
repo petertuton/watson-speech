@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Watson Transcription</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+<div class="container">
+  <!-- <a href="/">&laquo; Examples</a> -->
+
+  <section>
+    <h2>Watson Transcription</h2>
+    <input id="inputFile" type="file" name="inputFile"><br>
+    <button id="transcribe">Transcribe</button><!-- <button id="stop-start">Stop</button> --><button id="save">Save</button>
+    <br /><br />
+    <div id="output">--</div>
+    <textarea id="output-textarea"></textarea>
+  </section>
+
+  <script src="bower_components/watson-speech/dist/watson-speech.js"></script>
+  <script src="bower_components/fetch/fetch.js"></script>
+</div>
+
+<script>
+
+  // Save button
+  document.querySelector('#save').onclick = function () {
+    var text = document.querySelector('#output-textarea').value,
+      blob = new Blob([text], { type: 'text/plain' }),
+      anchor = document.createElement('a');
+
+    anchor.download = document.querySelector('#inputFile').files[0].name + ".txt";
+    anchor.href = window.URL.createObjectURL(blob);
+    anchor.dataset.downloadurl = ['text/plain', anchor.download, anchor.href].join(':');
+    anchor.click();
+    window.URL.revokeObjectURL(anchor.href);
+  }
+
+  // Transcribe button
+  document.querySelector('#transcribe').onclick = function () {
+    fetch('/api/speech-to-text/token').then(function(response) {
+      return response.text();
+    }).then(function (token) {
+
+      var output = document.querySelector('#output');
+      output.innerHTML = 'Processing...';
+
+      var stream = WatsonSpeech.SpeechToText.recognizeFile({
+        model: 'en-US_NarrowbandModel',
+        url: 'https://gateway-syd.watsonplatform.net/speech-to-text/api',
+        access_token: token,
+        smart_formatting: true,
+        customization_id: "af031a6a-9be3-4ef6-9864-1b7ea0c23aea",
+        acoustic_customization_id: "082ad887-826c-49c8-a19c-a30110f4d43a", 
+        file: document.querySelector('#inputFile').files[0],
+        play: false,
+        format: true,
+        realtime: false,
+        speaker_labels: true,
+        resultsBySpeaker: true
+      });
+
+      stream.on('data', function(data) {
+        var lines_textarea = data.results.map(function(result) {
+          return 'Speaker ' + result.speaker + ': ' + result.alternatives[0].transcript;
+        });
+
+        var output_textarea = document.querySelector('#output-textarea');
+        output_textarea.value = lines_textarea.join('\n');
+        output_textarea.scrollTop = output_textarea.scrollHeight;
+      });
+
+      stream.on('error', function(err) {
+        output.innerHTML = 'Error: ' + err;
+        console.log(err);
+      });
+
+      // stream.on('stop', function() {
+      //   output.innerHTML = 'Stopped';
+      //   console.log("Stopped");
+      // });
+
+      stream.on('finish', function() {
+        output.innerHTML = 'Finished';
+        console.log("Finished");
+      });
+
+      // Stop-Start button
+      // document.querySelector('#stop-start').onclick = function () {
+      //   stream.stop.bind(stream);
+      //  document.querySelector('#stop-start').innerHTML = 'Start';
+      // }
+
+    }).catch(function(error) {
+      console.log(error);
+    });
+  };
+
+</script>
+
+</body>
+</html>
