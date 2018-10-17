@@ -21,9 +21,6 @@
 const express = require('express');
 const app = express();
 const AuthorizationV1 = require('watson-developer-cloud/authorization/v1');
-const SpeechToTextV1 = require('watson-developer-cloud/speech-to-text/v1');
-const TextToSpeechV1 = require('watson-developer-cloud/text-to-speech/v1');
-const vcapServices = require('vcap_services');
 const expressBrowserify = require('express-browserify');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpack = require('webpack');
@@ -64,13 +61,6 @@ app.get(
     debug: isDev
   })
 );
-app.get(
-  '/audio-video-deprecated/bundle.js',
-  expressBrowserify('static/audio-video-deprecated/audio-video-app.js', {
-    watch: isDev,
-    debug: isDev
-  })
-);
 
 // set up webpack-dev-middleware to serve Webpack bundles for examples
 const compiler = webpack(webpackConfig);
@@ -87,32 +77,10 @@ app.use(
 var sttAuthService = new AuthorizationV1({
     iam_apikey: process.env.SPEECH_TO_TEXT_APIKEY,
     url: process.env.SPEECH_TO_TEXT_URL
-    // username: process.env.SPEECH_TO_TEXT_USERNAME,
-    // password: process.env.SPEECH_TO_TEXT_PASSWORD,
-    // url: process.env.SPEECH_TO_TEXT_URL
   }
 );
 app.use('/api/speech-to-text/token', function(req, res) {
   sttAuthService.getToken(function (err, token) {
-    if (!token) {
-      console.log('Error retrieving token: ', err);
-      res.status(500).send('Error retrieving token');
-      return;
-    } else {
-      res.send(token);
-    }
-  });    
-});
-
-// text to speech token endpoint
-var ttsAuthService = new AuthorizationV1({
-    iam_apikey: process.env.TEXT_TO_SPEECH_APIKEY,
-    iam_url: process.env.TEXT_TO_SPEECH_URL
-  }
-);
-
-app.use('/api/text-to-speech/token', function(req, res) {
-  ttsAuthService.getToken(function (err, token) {
     if (!token) {
       console.log('Error retrieving token: ', err);
       res.status(500).send('Error retrieving token');
