@@ -1,19 +1,8 @@
----
-declared-services:
-  sandbox-speech-to-text:
-    label: sandbox-speech-to-text
-    plan: standard
-  sandbox-text-to-speech:
-    label: sandbox-text-to-speech
-    plan: standard
 applications:
 - name: pt-watson-speech
   buildpack: sdk-for-nodejs
   path: .
   command: npm start
   memory: 512M
-  services:
-  - sandbox-speech-to-text
-  - sandbox-text-to-speech
   env:
    NODE_ENV: production
