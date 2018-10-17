@@ -21,10 +21,6 @@
 const express = require('express');
 const app = express();
 const AuthorizationV1 = require('watson-developer-cloud/authorization/v1');
-const expressBrowserify = require('express-browserify');
-const webpackDevMiddleware = require('webpack-dev-middleware');
-const webpack = require('webpack');
-const webpackConfig = require('./webpack.config');
 
 // allows environment properties to be set in a file named .env
 require('dotenv').load({ silent: true });
@@ -52,24 +48,6 @@ if (process.env.VCAP_SERVICES) {
 
 app.use(express.static(__dirname + '/static'));
 
-// set up express-browserify to serve browserify bundles for examples
-const isDev = app.get('env') === 'development';
-app.get(
-  '/browserify-bundle.js',
-  expressBrowserify('static/browserify-app.js', {
-    watch: isDev,
-    debug: isDev
-  })
-);
-
-// set up webpack-dev-middleware to serve Webpack bundles for examples
-const compiler = webpack(webpackConfig);
-app.use(
-  webpackDevMiddleware(compiler, {
-    publicPath: '/' // Same as `output.publicPath` in most cases.
-  })
-);
-
 // token endpoints
 // **Warning**: these endpoints should probably be guarded with additional authentication & authorization for production use
 
@@ -93,7 +71,7 @@ app.use('/api/speech-to-text/token', function(req, res) {
 
 const port = process.env.PORT || process.env.VCAP_APP_PORT || 3000;
 app.listen(port, function() {
-  console.log('Example IBM Watson Speech JS SDK client app & token server live at http://localhost:%s/', port);
+  console.log('IBM Watson Speech client app & token server live on port %s', port);
 });
 
 // Chrome requires https to access the user's microphone unless it's a localhost url so
