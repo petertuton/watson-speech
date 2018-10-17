@@ -22,12 +22,6 @@ Setup - Node.js
 2. create a `.env` file, with the following entries (entering the appropriate values):
   `SPEECH_TO_TEXT_APIKEY=`
   `SPEECH_TO_TEXT_URL=`
-  `SPEECH_TO_TEXT_USERNAME=`
-  `SPEECH_TO_TEXT_PASSWORD=`
-  `TEXT_TO_SPEECH_APIKEY=`
-  `TEXT_TO_SPEECH_URL=`
-  `TEXT_TO_SPEECH_USERNAME=`
-  `TEXT_TO_SPEECH_PASSWORD=`
 3. run `npm start`
 4. Open your browser to http://localhost:3000/ to see the examples.
 
